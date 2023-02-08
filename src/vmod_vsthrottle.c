@@ -312,7 +312,7 @@ vmod_reset(VRT_CTX, VCL_STRING key, VCL_INT limit, VCL_DURATION period,
     unsigned part = digest[0] & N_PART_MASK;
     struct vsthrottle *v = &vsthrottle[part];
 	(void)ctx;
-    pthread_mutex_lock(&v->mtx);
+    AZ(pthread_mutex_lock(&v->mtx));
     struct tbucket k;
     INIT_OBJ(&k, TBUCKET_MAGIC);
     memcpy(&k.digest, digest, sizeof k.digest);
@@ -322,7 +322,7 @@ vmod_reset(VRT_CTX, VCL_STRING key, VCL_INT limit, VCL_DURATION period,
         VRB_REMOVE(tbtree, &v->buckets, b);
         free(b);
     }
-    pthread_mutex_unlock(&v->mtx);
+    AZ(pthread_mutex_unlock(&v->mtx));
 }
 
 
