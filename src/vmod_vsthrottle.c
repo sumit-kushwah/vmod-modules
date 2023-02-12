@@ -309,27 +309,24 @@ vmod_reset(VRT_CTX, VCL_STRING key, VCL_INT limit, VCL_DURATION period,
 {
 	struct tbucket *b;
 	struct vsthrottle *v;
-	struct tbucket k;
+	double now;
 	unsigned char digest[SHA256_LEN];
 	unsigned part;
 
 	(void)ctx;
 
-    do_digest(digest, key, limit, period, block);
-    part = digest[0] & N_PART_MASK;
-    v = &vsthrottle[part];
+	if (!key)
+		return;
+	do_digest(digest, key, limit, period, block);
 
-    AZ(pthread_mutex_lock(&v->mtx));
-	
-    INIT_OBJ(&k, TBUCKET_MAGIC);
-    memcpy(&k.digest, digest, sizeof k.digest);
-    b = VRB_FIND(tbtree, &v->buckets, &k);
-    if (b) {
-        CHECK_OBJ_NOTNULL(b, TBUCKET_MAGIC);
-        VRB_REMOVE(tbtree, &v->buckets, b);
-        free(b);
-    }
-    AZ(pthread_mutex_unlock(&v->mtx));
+	part = digest[0] & N_PART_MASK;
+	v = &vsthrottle[part];
+	AZ(pthread_mutex_lock(&v->mtx));
+	now = VTIM_mono();
+	b = get_bucket(digest, limit, period, now);
+	VRB_REMOVE(tbtree, &v->buckets, b);
+	FREE_OBJ(b);
+	AZ(pthread_mutex_unlock(&v->mtx));
 }
 
 
