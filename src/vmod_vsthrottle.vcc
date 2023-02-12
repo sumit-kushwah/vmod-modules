@@ -177,7 +177,7 @@ Example
      }
 
 $Function VOID reset(STRING key, INT limit, DURATION period,
-                           DURATION block)
+                           DURATION block=0)
 
 Arguments:
   - Same arguments as is_denied()
