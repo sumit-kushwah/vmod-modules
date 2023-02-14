@@ -1,4 +1,4 @@
-varnishtest "Test vsthrottle reset()"
+varnishtest "Test vsthrottle remove_bucket()"
 
 server s1 {
        rxreq
@@ -24,7 +24,7 @@ varnish v1 -vcl+backend {
 
 		set resp.http.foo-count1 = vsthrottle.remaining("foo", 5, 1s);
 
-		vsthrottle.reset("foo", 5, 1s);
+		vsthrottle.remove_bucket("foo", 5, 1s);
 
 		set resp.http.foo-count2 = vsthrottle.remaining("foo", 5, 1s);
 	}
